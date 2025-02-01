@@ -15,15 +15,15 @@ function App() {
 
   //filter the list based on the search term
   const filteredPokemonList = pokemonList.filter((name) => {
-    name.toLowerCase().includes(searchTerm.toLowerCase());
+    return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
-    <>
-      <h2 className="text-3xl font-bold underline">Pokemon</h2>
+    <div className="p-8">
+      <h2 className="text-3xl font-bold">Pokemon!</h2>
       <label htmlFor="search"></label>
       <input
-        className="w-full bg-blue-200 p-4 rounded-sm"
+        className="w-full bg-blue-100 p-4 rounded-sm m-2 ml-0"
         id="search"
         name="search"
         type="text"
@@ -31,14 +31,14 @@ function App() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <ul className="grid gap-4">
-        {pokemonList.map((name, index) => (
+      <ul className="grid grid-cols-4 gap-4">
+        {filteredPokemonList.map((name, index) => (
           <li key={index} className="p-2 border rounded-md">
             {name}
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }
 
