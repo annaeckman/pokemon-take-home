@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 
-import "./App.css";
-
 function App() {
   const [pokemonList, setPokemonList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,7 +21,7 @@ function App() {
       <h2 className="text-3xl font-bold">Pokemon!</h2>
       <label htmlFor="search"></label>
       <input
-        className="w-full bg-blue-100 p-4 rounded-sm m-2 ml-0"
+        className="w-full bg-blue-100 p-2 rounded-sm m-2 ml-0"
         id="search"
         name="search"
         type="text"
@@ -31,7 +29,7 @@ function App() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <ul className="grid grid-cols-4 gap-4">
+      <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4">
         {filteredPokemonList.map((name, index) => (
           <li key={index} className="p-2 border rounded-md">
             {name}
