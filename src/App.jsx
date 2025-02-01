@@ -7,6 +7,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [typeList, setTypeList] = useState([]);
+  const [selectedType, setSelectedType] = useState(null);
+  const [filteredByType, setFilteredByType] = useState([]);
   // react setState can be resolved asynchronously...
   // review how useEffects work...
 
@@ -31,7 +33,6 @@ function App() {
       .then((res) => res.json())
       .then((json) => {
         setTypeList(json.results.map(({ name }) => name));
-        console.log(json);
       });
   }, []);
 
@@ -41,6 +42,35 @@ function App() {
   const filteredPokemonList = pokemonList.filter((name) => {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  const typeClickHandler = (event) => {
+    const selectedType = event.target.value;
+    setSelectedType(selectedType);
+    setIsLoading(true);
+    fetch(`https://pokeapi.co/api/v2/type/${selectedType}`)
+      .then((res) => res.json())
+      .then((json) => {
+        const typePokemons = json.pokemon.map((poke) => poke.pokemon.name);
+        setFilteredByType(typePokemons); // Set filtered Pokémon by selected type
+        setIsLoading(false);
+      });
+  };
+
+  const renderPokemonList = () => {
+    if (selectedType) {
+      return filteredByType.map((name, index) => (
+        <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
+          <a href="">{name}</a>
+        </li>
+      ));
+    }
+
+    return filteredPokemonList.map((name, index) => (
+      <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
+        <a href="">{name}</a>
+      </li>
+    ));
+  };
 
   return (
     <div className="p-8">
@@ -56,23 +86,32 @@ function App() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4">
+        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4 mb-[10px]">
           {typeList.map((name, index) => (
             <li key={index}>
-              <label>{name}</label> <input id={name} type="radio"></input>
+              <input
+                onClick={typeClickHandler}
+                id="type"
+                type="radio"
+                name="type"
+                value={name}
+              ></input>
+              <label className="pl-1" htmlFor="type">
+                {name}
+              </label>
             </li>
           ))}
+          <li>
+            <input name="type" id="all" type="radio" />
+            <label className="pl-1" htmlFor="all">
+              all
+            </label>
+          </li>
         </ul>
       </form>
 
       <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4">
-        {filteredPokemonList.map((name, index) => (
-          <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
-            <a href="" className="">
-              {name}
-            </a>
-          </li>
-        ))}
+        {renderPokemonList()}
       </ul>
     </div>
   );
