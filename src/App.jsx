@@ -3,13 +3,39 @@ import { useState, useEffect } from "react";
 function App() {
   const [pokemonList, setPokemonList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  //tells me we're awaiting the pokemon list response, response from the server
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [typeList, setTypeList] = useState([]);
+  // react setState can be resolved asynchronously...
+  // review how useEffects work...
 
   //when site renders, get the list of all pokemon and store in state
   useEffect(() => {
     fetch("https://pokeapi.co/api/v2/pokemon?limit=1500")
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        setIsError(true);
+        // what if when there's an error, make a button that says try again???
+        // maybe the useEffect calls a resusable function so that i can call it later
+        setIsLoading(false);
+        return Promise.reject();
+      })
+      .then((json) => {
+        setPokemonList(json.results.map(({ name }) => name));
+        setIsLoading(false);
+      });
+    fetch("https://pokeapi.co/api/v2/type")
       .then((res) => res.json())
-      .then((json) => setPokemonList(json.results.map(({ name }) => name)));
+      .then((json) => {
+        setTypeList(json.results.map(({ name }) => name));
+        console.log(json);
+      });
   }, []);
+
+  //component mounts, renders, then runs the useEffect
 
   //filter the list based on the search term
   const filteredPokemonList = pokemonList.filter((name) => {
@@ -19,20 +45,32 @@ function App() {
   return (
     <div className="p-8">
       <h2 className="text-3xl font-bold">Pokemon!</h2>
-      <label htmlFor="search"></label>
-      <input
-        className="w-full bg-blue-100 p-2 rounded-sm m-2 ml-0"
-        id="search"
-        name="search"
-        type="text"
-        placeholder="search for your favorite pokemon"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <form action="">
+        <label htmlFor="search"></label>
+        <input
+          className="w-full bg-blue-100 p-2 border rounded-md m-2 ml-0"
+          id="search"
+          name="search"
+          type="text"
+          placeholder="search for your favorite pokemon!"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4">
+          {typeList.map((name, index) => (
+            <li key={index}>
+              <label>{name}</label> <input id={name} type="radio"></input>
+            </li>
+          ))}
+        </ul>
+      </form>
+
       <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4">
         {filteredPokemonList.map((name, index) => (
-          <li key={index} className="p-2 border rounded-md">
-            {name}
+          <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
+            <a href="" className="">
+              {name}
+            </a>
           </li>
         ))}
       </ul>
