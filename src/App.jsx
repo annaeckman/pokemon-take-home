@@ -53,7 +53,11 @@ function App() {
   //component mounts, renders, then runs the useEffect
 
   //filter the list based on the search term
-  const filteredPokemonList = pokemonList.filter((name) => {
+  const filteredBySearchList = pokemonList.filter((name) => {
+    return name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  const filteredBySearchAndType = filteredByType.filter((name) => {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
@@ -88,7 +92,7 @@ function App() {
   const renderPokemonList = () => {
     // rendered list when all is clicked
     if (selectedType === "all") {
-      return filteredPokemonList.map((name, index) => (
+      return filteredBySearchList.map((name, index) => (
         <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
           <a href="">{name}</a>
         </li>
@@ -97,7 +101,7 @@ function App() {
 
     // rendered list when any type is clicked
     if (selectedType) {
-      return filteredByType.map((name, index) => (
+      return filteredBySearchAndType.map((name, index) => (
         <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
           <a href="">{name}</a>
         </li>
@@ -105,7 +109,7 @@ function App() {
     }
 
     //default list includes all pokemon
-    return filteredPokemonList.map((name, index) => (
+    return filteredBySearchList.map((name, index) => (
       <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
         <a href="">{name}</a>
       </li>
@@ -140,7 +144,7 @@ function App() {
                   value={name}
                   checked={selectedType === name}
                 />
-                <label className="pl-1" htmlFor="type">
+                <label className="pl-1" htmlFor={name}>
                   {name}
                 </label>
               </li>
