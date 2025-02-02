@@ -124,34 +124,38 @@ function App() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4 mb-[10px]">
-          {typeList.map((name, index) => (
-            <li key={index}>
+        {isLoading ? (
+          <h2>loading...</h2>
+        ) : (
+          <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4 mb-[10px]">
+            {typeList.map((name, index) => (
+              <li key={index}>
+                <input
+                  onClick={typeClickHandler}
+                  id="type"
+                  type="radio"
+                  name="type"
+                  value={name || ""}
+                ></input>
+                <label className="pl-1" htmlFor="type">
+                  {name}
+                </label>
+              </li>
+            ))}
+            <li>
               <input
                 onClick={typeClickHandler}
-                id="type"
-                type="radio"
                 name="type"
-                value={name}
-              ></input>
-              <label className="pl-1" htmlFor="type">
-                {name}
+                id="all"
+                type="radio"
+                value="all"
+              />
+              <label className="pl-1" htmlFor="all">
+                all
               </label>
             </li>
-          ))}
-          <li>
-            <input
-              onClick={typeClickHandler}
-              name="type"
-              id="all"
-              type="radio"
-              value="all"
-            />
-            <label className="pl-1" htmlFor="all">
-              all
-            </label>
-          </li>
-        </ul>
+          </ul>
+        )}
       </form>
 
       <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4">
