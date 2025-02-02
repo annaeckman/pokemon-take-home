@@ -28,11 +28,23 @@ function App() {
       .then((json) => {
         setPokemonList(json.results.map(({ name }) => name));
         setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsError(true);
       });
     fetch("https://pokeapi.co/api/v2/type")
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+      })
       .then((json) => {
         setTypeList(json.results.map(({ name }) => name));
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsError(true);
       });
   }, []);
 
@@ -44,19 +56,44 @@ function App() {
   });
 
   const typeClickHandler = (event) => {
+    // store the selected type in state
     const selectedType = event.target.value;
     setSelectedType(selectedType);
+
+    if (selectedType === "all") {
+      return;
+    }
+
     setIsLoading(true);
     fetch(`https://pokeapi.co/api/v2/type/${selectedType}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+      })
       .then((json) => {
-        const typePokemons = json.pokemon.map((poke) => poke.pokemon.name);
-        setFilteredByType(typePokemons); // Set filtered Pokémon by selected type
+        const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
+        setFilteredByType(typePokemon); // Set filtered Pokémon by selected type
         setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsError(true);
       });
   };
 
   const renderPokemonList = () => {
+    // rendered list when all is clicked
+    if (selectedType === "all") {
+      console.log("all is clicked");
+      return pokemonList.map((name, index) => (
+        <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
+          <a href="">{name}</a>
+        </li>
+      ));
+    }
+
+    // rendered list when any type is clicked
     if (selectedType) {
       return filteredByType.map((name, index) => (
         <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
@@ -65,6 +102,7 @@ function App() {
       ));
     }
 
+    //default list includes all pokemon
     return filteredPokemonList.map((name, index) => (
       <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
         <a href="">{name}</a>
@@ -102,7 +140,13 @@ function App() {
             </li>
           ))}
           <li>
-            <input name="type" id="all" type="radio" />
+            <input
+              onClick={typeClickHandler}
+              name="type"
+              id="all"
+              type="radio"
+              value="all"
+            />
             <label className="pl-1" htmlFor="all">
               all
             </label>
