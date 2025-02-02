@@ -12,18 +12,13 @@ function App() {
   // react setState can be resolved asynchronously...
   // review how useEffects work...
 
-  //when site renders, get the list of all pokemon and store in state
   useEffect(() => {
+    //get the list of all pokemon and store in state
     fetch("https://pokeapi.co/api/v2/pokemon?limit=1500")
       .then((res) => {
         if (res.ok) {
           return res.json();
         }
-        setIsError(true);
-        // what if when there's an error, make a button that says try again???
-        // maybe the useEffect calls a resusable function so that i can call it later
-        setIsLoading(false);
-        return Promise.reject();
       })
       .then((json) => {
         setPokemonList(json.results.map(({ name }) => name));
@@ -33,6 +28,8 @@ function App() {
         console.error(err);
         setIsError(true);
       });
+
+    // get the types of pokemon and store in state
     fetch("https://pokeapi.co/api/v2/type")
       .then((res) => {
         if (res.ok) {
@@ -41,10 +38,15 @@ function App() {
       })
       .then((json) => {
         setTypeList(json.results.map(({ name }) => name));
+        setIsLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setIsError(true);
+        setIsLoading(false);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -55,7 +57,7 @@ function App() {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const typeClickHandler = (event) => {
+  const typeChangeHandler = (event) => {
     // store the selected type in state
     const selectedType = event.target.value;
     setSelectedType(selectedType);
@@ -79,14 +81,14 @@ function App() {
       .catch((err) => {
         console.error(err);
         setIsError(true);
+        setIsLoading(false);
       });
   };
 
   const renderPokemonList = () => {
     // rendered list when all is clicked
     if (selectedType === "all") {
-      console.log("all is clicked");
-      return pokemonList.map((name, index) => (
+      return filteredPokemonList.map((name, index) => (
         <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
           <a href="">{name}</a>
         </li>
@@ -131,12 +133,13 @@ function App() {
             {typeList.map((name, index) => (
               <li key={index}>
                 <input
-                  onClick={typeClickHandler}
-                  id="type"
+                  onChange={typeChangeHandler}
+                  id={name}
                   type="radio"
                   name="type"
-                  value={name || ""}
-                ></input>
+                  value={name}
+                  checked={selectedType === name}
+                />
                 <label className="pl-1" htmlFor="type">
                   {name}
                 </label>
@@ -144,11 +147,12 @@ function App() {
             ))}
             <li>
               <input
-                onClick={typeClickHandler}
+                onChange={typeChangeHandler}
                 name="type"
                 id="all"
                 type="radio"
                 value="all"
+                checked={selectedType === "all"}
               />
               <label className="pl-1" htmlFor="all">
                 all
