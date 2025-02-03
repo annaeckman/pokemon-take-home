@@ -2,24 +2,26 @@ import { useState, useEffect } from "react";
 
 function App() {
   const [pokemonList, setPokemonList] = useState([]);
+  const [filteredByType, setFilteredByType] = useState([]);
+  const [typeList, setTypeList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [typeList, setTypeList] = useState([]);
-  const [selectedType, setSelectedType] = useState(null);
-  const [filteredByType, setFilteredByType] = useState([]);
 
   //component mounts, renders, then runs the useEffect
+
+  const checkResponse = (res) => {
+    if (res.ok) {
+      return res.json();
+    }
+    return Promise.reject();
+  };
 
   useEffect(() => {
     //get the list of all pokemon and store in state
     fetch("https://pokeapi.co/api/v2/pokemon?limit=1500")
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject();
-      })
+      .then((res) => checkResponse(res))
       .then((json) => {
         setPokemonList(json.results.map(({ name }) => name));
       })
@@ -31,12 +33,7 @@ function App() {
 
     // get the types of pokemon and store in state
     fetch("https://pokeapi.co/api/v2/type")
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject();
-      })
+      .then((res) => checkResponse(res))
       .then((json) => {
         setTypeList(json.results.map(({ name }) => name));
       })
@@ -69,13 +66,9 @@ function App() {
 
     setIsLoading(true);
 
+    // get the list of pokemon from the type chosen by user
     fetch(`https://pokeapi.co/api/v2/type/${selectedType}`)
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject();
-      })
+      .then((res) => checkResponse(res))
       .then((json) => {
         const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
         setFilteredByType(typePokemon); // Set filtered Pokémon by selected type
@@ -129,7 +122,7 @@ function App() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         {isLoading ? (
-          <h2>loading...</h2>
+          <h2 className="m-5">loading...</h2>
         ) : (
           <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4 mb-[10px]">
             {typeList.map((name, index) => (
@@ -172,3 +165,15 @@ function App() {
 }
 
 export default App;
+
+//TO IMPROVE:
+// add UI for when user clicks on pokemon, show picture and stats
+// add UI for when no pokemon match the criteria
+// add UI for error
+// refactor this with react query
+
+// race condition issue that would be solved with react query
+//Click rock and the rock request goes out
+// Click ground and the ground request goes out
+// Just because of the randomness of how long responses take to come back, the ground response comes back BEFORE the rock response
+// The last set state is called with the rock Pokémon, even though the user last clicked on ground
