@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 function App() {
   const [pokemonList, setPokemonList] = useState([]);
-  const [filteredByType, setFilteredByType] = useState([]);
+  const [pokemonByType, setpokemonByType] = useState([]);
   const [typeList, setTypeList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState(null);
@@ -50,9 +50,46 @@ function App() {
   });
 
   //filter the list by type based on the search term
-  const filteredBySearchAndType = filteredByType.filter((name) => {
+  const filteredBySearchAndType = pokemonByType.filter((name) => {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  // commented code below is a solution that takes care of racing problem
+  // by using a useEffect, triggered when selectedType changes
+
+  // const typeChangeHandler = (event) => {
+  //   setSelectedType(event.target.value);
+  // };
+
+  // useEffect(() => {
+  //   if (selectedType === "all") {
+  //     setpokemonByType([]);
+  //     return;
+  //   }
+  //   let isActive = true;
+
+  //   setIsLoading(true);
+  //   setIsError(false);
+
+  //   fetch(`https://pokeapi.co/api/v2/type/${selectedType}`)
+  //     .then((res) => checkResponse(res))
+  //     .then((json) => {
+  //       if (isActive) {
+  //         const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
+  //         setpokemonByType(typePokemon); // Set filtered Pokémon by selected type
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.error(err);
+  //       setIsError(true);
+  //     })
+  //     .finally(() => {
+  //       if (isActive) setIsLoading(false);
+  //     });
+  //   return () => {
+  //     isActive = false;
+  //   };
+  // }, [selectedType]);
 
   const typeChangeHandler = (event) => {
     // store the selected type in state
@@ -71,7 +108,7 @@ function App() {
       .then((res) => checkResponse(res))
       .then((json) => {
         const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
-        setFilteredByType(typePokemon); // Set filtered Pokémon by selected type
+        setpokemonByType(typePokemon); // Set filtered Pokémon by selected type
       })
       .catch((err) => {
         console.error(err);
@@ -122,7 +159,7 @@ function App() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4 mb-[10px]">
+        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4 mb-[10px]">
           {typeList.map((name, index) => (
             <li key={index}>
               <input
@@ -167,9 +204,12 @@ function App() {
 export default App;
 
 //TO IMPROVE:
+// abstract out repetitive code in the fetches, make a fn that takes the url and the
+// on success callback fn
 // add UI for when user clicks on pokemon, show picture and stats
 // add UI for when no pokemon match the criteria
 // add UI for error
+// add separate loading and error states for types and pokemon
 // refactor this with react query
 
 // race condition issue that would be solved with react query
