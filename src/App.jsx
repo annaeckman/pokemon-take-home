@@ -3,14 +3,13 @@ import { useState, useEffect } from "react";
 function App() {
   const [pokemonList, setPokemonList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  //tells me we're awaiting the pokemon list response, response from the server
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [typeList, setTypeList] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
   const [filteredByType, setFilteredByType] = useState([]);
-  // react setState can be resolved asynchronously...
-  // review how useEffects work...
+
+  //component mounts, renders, then runs the useEffect
 
   useEffect(() => {
     //get the list of all pokemon and store in state
@@ -19,15 +18,16 @@ function App() {
         if (res.ok) {
           return res.json();
         }
+        return Promise.reject();
       })
       .then((json) => {
         setPokemonList(json.results.map(({ name }) => name));
-        setIsLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setIsError(true);
-      });
+      })
+      .finally(() => setIsLoading(false));
 
     // get the types of pokemon and store in state
     fetch("https://pokeapi.co/api/v2/type")
@@ -35,28 +35,24 @@ function App() {
         if (res.ok) {
           return res.json();
         }
+        return Promise.reject();
       })
       .then((json) => {
         setTypeList(json.results.map(({ name }) => name));
-        setIsLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setIsError(true);
-        setIsLoading(false);
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .finally(() => setIsLoading(false));
   }, []);
-
-  //component mounts, renders, then runs the useEffect
 
   //filter the list based on the search term
   const filteredBySearchList = pokemonList.filter((name) => {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
+  //filter the list by type based on the search term
   const filteredBySearchAndType = filteredByType.filter((name) => {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
@@ -66,27 +62,29 @@ function App() {
     const selectedType = event.target.value;
     setSelectedType(selectedType);
 
+    // if all is selected, don't fetch the type data
     if (selectedType === "all") {
       return;
     }
 
     setIsLoading(true);
+
     fetch(`https://pokeapi.co/api/v2/type/${selectedType}`)
       .then((res) => {
         if (res.ok) {
           return res.json();
         }
+        return Promise.reject();
       })
       .then((json) => {
         const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
         setFilteredByType(typePokemon); // Set filtered Pokémon by selected type
-        setIsLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setIsError(true);
-        setIsLoading(false);
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const renderPokemonList = () => {
