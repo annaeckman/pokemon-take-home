@@ -85,7 +85,7 @@ function App() {
     if (selectedType === "all") {
       return filteredBySearchList.map((name, index) => (
         <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
-          <a href="">{name}</a>
+          {name}
         </li>
       ));
     }
@@ -94,7 +94,7 @@ function App() {
     if (selectedType) {
       return filteredBySearchAndType.map((name, index) => (
         <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
-          <a href="">{name}</a>
+          {name}
         </li>
       ));
     }
@@ -102,7 +102,7 @@ function App() {
     //default list includes all pokemon
     return filteredBySearchList.map((name, index) => (
       <li key={index} className="p-2 border rounded-md hover:bg-blue-100">
-        <a href="">{name}</a>
+        {name}
       </li>
     ));
   };
@@ -121,45 +121,45 @@ function App() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        {isLoading ? (
-          <h2 className="m-5">loading...</h2>
-        ) : (
-          <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4 mb-[10px]">
-            {typeList.map((name, index) => (
-              <li key={index}>
-                <input
-                  onChange={typeChangeHandler}
-                  id={name}
-                  type="radio"
-                  name="type"
-                  value={name}
-                  checked={selectedType === name}
-                />
-                <label className="pl-1" htmlFor={name}>
-                  {name}
-                </label>
-              </li>
-            ))}
-            <li>
+
+        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4 mb-[10px]">
+          {typeList.map((name, index) => (
+            <li key={index}>
               <input
                 onChange={typeChangeHandler}
-                name="type"
-                id="all"
+                id={name}
                 type="radio"
-                value="all"
-                checked={selectedType === "all"}
+                name="type"
+                value={name}
+                checked={selectedType === name}
               />
-              <label className="pl-1" htmlFor="all">
-                all
+              <label className="pl-1" htmlFor={name}>
+                {name}
               </label>
             </li>
-          </ul>
-        )}
+          ))}
+          <li>
+            <input
+              onChange={typeChangeHandler}
+              name="type"
+              id="all"
+              type="radio"
+              value="all"
+              checked={selectedType === "all"}
+            />
+            <label className="pl-1" htmlFor="all">
+              all
+            </label>
+          </li>
+        </ul>
       </form>
-
-      <ul className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-4">
-        {renderPokemonList()}
-      </ul>
+      {isLoading ? (
+        <h2 className="m-5">loading...</h2>
+      ) : (
+        <ul className="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] gap-4">
+          {renderPokemonList()}
+        </ul>
+      )}
     </div>
   );
 }
