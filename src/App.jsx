@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 function App() {
   const [pokemonList, setPokemonList] = useState([]);
-  const [pokemonByType, setpokemonByType] = useState([]);
+  const [pokemonByType, setPokemonByType] = useState([]);
   const [typeList, setTypeList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
@@ -52,16 +52,13 @@ function App() {
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  // commented code below is a solution that takes care of racing problem
-  // by using a useEffect, triggered when selectedType changes
-
   const handleTypeChange = (event) => {
     setSelectedType(event.target.value);
   };
 
   useEffect(() => {
     if (selectedType === "all") {
-      setpokemonByType([]);
+      setPokemonByType([]);
       return;
     }
     let isActive = true;
@@ -74,7 +71,7 @@ function App() {
       .then((json) => {
         if (isActive) {
           const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
-          setpokemonByType(typePokemon); // Set filtered Pokémon by selected type
+          setPokemonByType(typePokemon); // Set filtered Pokémon by selected type
         }
       })
       .catch((err) => {
