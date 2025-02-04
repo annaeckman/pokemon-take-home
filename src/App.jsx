@@ -115,7 +115,7 @@ function App() {
 
   return (
     <div className="p-8">
-      <h2 className="text-3xl font-bold">Pokemon!</h2>
+      <h1 className="text-3xl font-bold">Pokemon!</h1>
       <form action="">
         <label htmlFor="search"></label>
         <input
