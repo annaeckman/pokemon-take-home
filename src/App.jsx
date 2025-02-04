@@ -5,11 +5,9 @@ function App() {
   const [pokemonByType, setpokemonByType] = useState([]);
   const [typeList, setTypeList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState(null);
+  const [selectedType, setSelectedType] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-
-  //component mounts, renders, then runs the useEffect
 
   const checkResponse = (res) => {
     if (res.ok) {
@@ -57,65 +55,39 @@ function App() {
   // commented code below is a solution that takes care of racing problem
   // by using a useEffect, triggered when selectedType changes
 
-  // const typeChangeHandler = (event) => {
-  //   setSelectedType(event.target.value);
-  // };
+  const handleTypeChange = (event) => {
+    setSelectedType(event.target.value);
+  };
 
-  // useEffect(() => {
-  //   if (selectedType === "all") {
-  //     setpokemonByType([]);
-  //     return;
-  //   }
-  //   let isActive = true;
-
-  //   setIsLoading(true);
-  //   setIsError(false);
-
-  //   fetch(`https://pokeapi.co/api/v2/type/${selectedType}`)
-  //     .then((res) => checkResponse(res))
-  //     .then((json) => {
-  //       if (isActive) {
-  //         const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
-  //         setpokemonByType(typePokemon); // Set filtered Pokémon by selected type
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.error(err);
-  //       setIsError(true);
-  //     })
-  //     .finally(() => {
-  //       if (isActive) setIsLoading(false);
-  //     });
-  //   return () => {
-  //     isActive = false;
-  //   };
-  // }, [selectedType]);
-
-  const typeChangeHandler = (event) => {
-    // store the selected type in state
-    const selectedType = event.target.value;
-    setSelectedType(selectedType);
-
-    // if all is selected, don't fetch the type data
+  useEffect(() => {
     if (selectedType === "all") {
+      setpokemonByType([]);
       return;
     }
+    let isActive = true;
 
     setIsLoading(true);
+    setIsError(false);
 
-    // get the list of pokemon from the type chosen by user
     fetch(`https://pokeapi.co/api/v2/type/${selectedType}`)
       .then((res) => checkResponse(res))
       .then((json) => {
-        const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
-        setpokemonByType(typePokemon); // Set filtered Pokémon by selected type
+        if (isActive) {
+          const typePokemon = json.pokemon.map((poke) => poke.pokemon.name);
+          setpokemonByType(typePokemon); // Set filtered Pokémon by selected type
+        }
       })
       .catch((err) => {
         console.error(err);
         setIsError(true);
       })
-      .finally(() => setIsLoading(false));
-  };
+      .finally(() => {
+        if (isActive) setIsLoading(false);
+      });
+    return () => {
+      isActive = false;
+    };
+  }, [selectedType]);
 
   const renderPokemonList = () => {
     // rendered list when all is clicked
@@ -163,7 +135,7 @@ function App() {
           {typeList.map((name, index) => (
             <li key={index}>
               <input
-                onChange={typeChangeHandler}
+                onChange={handleTypeChange}
                 id={name}
                 type="radio"
                 name="type"
@@ -177,7 +149,7 @@ function App() {
           ))}
           <li>
             <input
-              onChange={typeChangeHandler}
+              onChange={handleTypeChange}
               name="type"
               id="all"
               type="radio"
@@ -210,8 +182,8 @@ export default App;
 // add UI for when no pokemon match the criteria
 // add UI for error
 // add separate loading and error states for types and pokemon
-// refactor this with react query
-
+// refactor this with react query!
+// because...
 // race condition issue that would be solved with react query
 //Click rock and the rock request goes out
 // Click ground and the ground request goes out
